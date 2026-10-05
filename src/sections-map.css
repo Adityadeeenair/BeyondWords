@@ -1,0 +1,557 @@
+/* ═══════════════════════════════════════════════════════
+   BeyondWords — Adventure World & Zones Map
+   Inspired by the adventure-map style
+   ═══════════════════════════════════════════════════════ */
+
+@import url('https://fonts.googleapis.com/css2?family=Bowlby+One+SC&family=DM+Sans:wght@500;700;800;900&family=Nunito:wght@700;800;900&display=swap');
+
+:root {
+  --sm-bg: #141d24;
+  --sm-surface: #1a252f;
+  --sm-card-bg: #1e2b36;
+  --sm-border: rgba(255, 255, 255, 0.08);
+  --sm-green: #22c55e;
+  --sm-green-glow: rgba(34, 197, 94, 0.4);
+}
+
+.sm-root {
+  min-height: 100vh;
+  background-color: var(--sm-bg);
+  background-image: 
+    radial-gradient(ellipse at 50% 10%, rgba(34, 197, 94, 0.08) 0%, transparent 60%),
+    radial-gradient(ellipse at 80% 80%, rgba(56, 189, 248, 0.06) 0%, transparent 60%);
+  font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  color: #fff;
+  padding-bottom: 80px;
+}
+
+/* ── Top Nav ─────────────────────────────────────────── */
+.sm-nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 32px;
+  border-bottom: 1px solid var(--sm-border);
+  background: rgba(20, 29, 36, 0.92);
+  backdrop-filter: blur(14px);
+  position: sticky;
+  top: 0;
+  z-index: 50;
+}
+
+.sm-nav-brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.sm-nav-logo {
+  font-size: 26px;
+}
+
+.sm-nav-name {
+  font-family: 'Nunito', 'DM Sans', sans-serif;
+  font-weight: 900;
+  font-size: 21px;
+  background: linear-gradient(90deg, #4ade80, #22c55e);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.sm-nav-tag {
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  padding: 2px 8px;
+  border-radius: 6px;
+  background: rgba(34, 197, 94, 0.15);
+  color: #4ade80;
+  border: 1px solid rgba(34, 197, 94, 0.3);
+}
+
+.sm-nav-right {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.sm-nav-email {
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.45);
+  max-width: 180px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.sm-nav-link {
+  font-size: 13px;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.7);
+  text-decoration: none;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 6px 14px;
+  border-radius: 8px;
+  transition: all 0.15s ease;
+}
+
+.sm-nav-link:hover {
+  background: rgba(255, 255, 255, 0.08);
+  color: #fff;
+}
+
+.sm-nav-logout {
+  color: #f87171;
+}
+.sm-nav-logout:hover {
+  background: rgba(248, 113, 113, 0.12);
+  color: #fca5a5;
+}
+
+/* ── Hero ─────────────────────────────────────────────── */
+.sm-hero {
+  text-align: center;
+  padding: 44px 24px 28px;
+}
+
+.sm-hero-tag {
+  display: inline-block;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: #4ade80;
+  background: rgba(34, 197, 94, 0.12);
+  border: 1px solid rgba(34, 197, 94, 0.3);
+  padding: 5px 16px;
+  border-radius: 100px;
+  margin-bottom: 14px;
+}
+
+.sm-hero-title {
+  font-family: 'Nunito', 'DM Sans', sans-serif;
+  font-size: clamp(30px, 5vw, 44px);
+  font-weight: 900;
+  margin: 0 0 10px;
+  color: #ffffff;
+}
+
+.sm-hero-sub {
+  font-size: 15px;
+  color: rgba(255, 255, 255, 0.6);
+  max-width: 560px;
+  margin: 0 auto;
+  line-height: 1.5;
+}
+
+/* ── Adventure Landscape Map ──────────────────────────── */
+.sm-map-section {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 0 24px;
+}
+
+.sm-map-canvas {
+  position: relative;
+  min-height: 380px;
+  background: radial-gradient(circle at 50% 50%, #1a2832 0%, #152028 100%);
+  border: 2px solid rgba(255, 255, 255, 0.09);
+  border-radius: 28px;
+  overflow: hidden;
+  box-shadow: 
+    0 16px 40px rgba(0, 0, 0, 0.5),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.05);
+  margin-bottom: 40px;
+  /* Topo map grid background */
+  background-image: 
+    linear-gradient(rgba(255, 255, 255, 0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.04) 1px, transparent 1px);
+  background-size: 40px 40px;
+}
+
+/* Clouds */
+.sm-cloud {
+  position: absolute;
+  height: 22px;
+  width: 76px;
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.07);
+  pointer-events: none;
+}
+.sm-cloud:before, .sm-cloud:after {
+  content: '';
+  position: absolute;
+  border-radius: 50%;
+  background: inherit;
+}
+.sm-cloud:before { width: 32px; height: 32px; left: 12px; top: -14px; }
+.sm-cloud:after  { width: 24px; height: 24px; left: 36px; top: -10px; }
+
+.sm-cloud-1 { top: 18%; left: 8%; }
+.sm-cloud-2 { top: 12%; right: 12%; transform: scale(1.2); }
+.sm-cloud-3 { bottom: 20%; left: 45%; opacity: 0.6; }
+
+/* SVG Trail */
+.sm-svg-path {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+/* Zones Row across map */
+.sm-zones-row {
+  position: relative;
+  z-index: 10;
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  min-height: 380px;
+  padding: 40px 30px;
+}
+
+/* Zone landmark node */
+.sm-zone-landmark-node {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  cursor: pointer;
+  transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+  position: relative;
+  outline: none;
+}
+
+.sm-zone-landmark-node:hover {
+  transform: translateY(-6px);
+}
+
+.sm-zone--closed {
+  cursor: not-allowed;
+  opacity: 0.75;
+}
+
+/* Start indicator */
+.sm-start-badge {
+  position: absolute;
+  top: -30px;
+  background: #22c55e;
+  color: #0b2d13;
+  font-size: 10px;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  padding: 3px 10px;
+  border-radius: 100px;
+  box-shadow: 0 4px 12px rgba(34, 197, 94, 0.5);
+  animation: sm-bounce 2s infinite ease-in-out;
+}
+
+@keyframes sm-bounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-4px); }
+}
+
+/* Zone Orb */
+.sm-zone-orb {
+  width: 96px;
+  height: 96px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 35%, #2a3a46 0%, #1b2630 100%);
+  border: 4px solid var(--zone-color, #4ade80);
+  box-shadow: 
+    0 0 25px var(--zone-glow, rgba(34, 197, 94, 0.4)),
+    0 8px 18px rgba(0, 0, 0, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  transition: all 0.2s ease;
+}
+
+.sm-zone-landmark-node:hover .sm-zone-orb {
+  box-shadow: 
+    0 0 35px var(--zone-glow, rgba(34, 197, 94, 0.6)),
+    0 12px 24px rgba(0, 0, 0, 0.7);
+}
+
+.sm-zone--closed .sm-zone-orb {
+  border-color: #3e505d;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+}
+
+.sm-zone-check {
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: #22c55e;
+  color: #fff;
+  font-size: 13px;
+  font-weight: 900;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid #141d24;
+}
+
+.sm-zone-lock {
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  font-size: 16px;
+}
+
+/* Zone Title Plate below orb */
+.sm-zone-title-card {
+  margin-top: 14px;
+  background: rgba(26, 37, 47, 0.95);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 8px 14px;
+  border-radius: 12px;
+  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.4);
+}
+
+.sm-zone-num {
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  color: #4ade80;
+  display: block;
+}
+
+.sm-zone-name {
+  font-size: 14px;
+  font-weight: 800;
+  color: #fff;
+  margin: 2px 0 0 0;
+}
+
+.sm-zone-sub {
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.5);
+  display: block;
+}
+
+/* ── Zone Cards Grid ─────────────────────────────────── */
+.sm-cards-container {
+  margin-top: 20px;
+}
+
+.sm-cards-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  margin-bottom: 20px;
+}
+
+.sm-cards-tag {
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  color: #4ade80;
+  text-transform: uppercase;
+  display: block;
+}
+
+.sm-cards-heading {
+  font-family: 'Nunito', 'DM Sans', sans-serif;
+  font-size: 24px;
+  font-weight: 900;
+  color: #fff;
+  margin: 2px 0 0 0;
+}
+
+.sm-cards-caption {
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.5);
+  max-width: 440px;
+  margin: 0;
+  text-align: right;
+}
+
+.sm-cards-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+}
+
+/* Individual Zone Card */
+.sm-zone-card {
+  background: var(--sm-card-bg);
+  border: 1.5px solid var(--sm-border);
+  border-radius: 20px;
+  padding: 22px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+  position: relative;
+  overflow: hidden;
+}
+
+.sm-zone-card--available {
+  cursor: pointer;
+  border-color: rgba(255, 255, 255, 0.12);
+}
+
+.sm-zone-card--available:hover {
+  transform: translateY(-4px);
+  border-color: var(--accent);
+  box-shadow: 0 12px 30px var(--glow), 0 0 0 1px var(--accent);
+}
+
+.sm-zone-card--locked {
+  opacity: 0.55;
+  cursor: not-allowed;
+  filter: saturate(0.4);
+}
+
+.sm-card-badge-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.sm-card-zone-num {
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  color: var(--accent);
+}
+
+.sm-status-chip {
+  font-size: 11px;
+  font-weight: 800;
+  padding: 3px 8px;
+  border-radius: 6px;
+}
+
+.sm-chip-open {
+  background: rgba(34, 197, 94, 0.15);
+  color: #4ade80;
+  border: 1px solid rgba(34, 197, 94, 0.3);
+}
+
+.sm-chip-locked {
+  background: rgba(255, 255, 255, 0.06);
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.sm-card-title {
+  font-size: 18px;
+  font-weight: 800;
+  color: #fff;
+  margin: 0 0 6px 0;
+}
+
+.sm-card-desc {
+  font-size: 13px;
+  line-height: 1.5;
+  color: rgba(255, 255, 255, 0.55);
+  margin: 0 0 16px 0;
+}
+
+/* Level pill indicators inside zone cards */
+.sm-card-levels-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 18px;
+}
+
+.sm-level-pill {
+  display: flex;
+  flex-direction: column;
+  padding: 4px 8px;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.sm-level-pill--complete {
+  background: rgba(34, 197, 94, 0.12);
+  border-color: rgba(34, 197, 94, 0.3);
+}
+
+.sm-level-pill--active {
+  background: rgba(34, 197, 94, 0.25);
+  border-color: #22c55e;
+}
+
+.sm-pill-label {
+  font-size: 11px;
+  font-weight: 800;
+  color: #fff;
+}
+
+.sm-pill-type {
+  font-size: 9px;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.5);
+  text-transform: uppercase;
+}
+
+/* CTA */
+.sm-card-footer {
+  border-top: 1px solid rgba(255, 255, 255, 0.07);
+  padding-top: 12px;
+}
+
+.sm-enter-cta {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 13px;
+  font-weight: 800;
+  color: var(--accent);
+}
+
+.sm-cta-arrow {
+  font-size: 16px;
+  transition: transform 0.15s ease;
+}
+
+.sm-zone-card--available:hover .sm-cta-arrow {
+  transform: translateX(4px);
+}
+
+.sm-locked-hint {
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.4);
+}
+
+/* ── Responsive ──────────────────────────────────────── */
+@media (max-width: 900px) {
+  .sm-cards-grid {
+    grid-template-columns: 1fr;
+  }
+  .sm-cards-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+  .sm-cards-caption {
+    text-align: left;
+  }
+}
+
+@media (max-width: 600px) {
+  .sm-zones-row {
+    flex-direction: column;
+    gap: 24px;
+  }
+  .sm-nav {
+    padding: 12px 16px;
+  }
+  .sm-nav-email {
+    display: none;
+  }
+}
+

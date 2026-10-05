@@ -1,0 +1,848 @@
+/* ── GameLevel.css ─────────────────────────────────────────────────────────── */
+/* Scope: Game exploration layer and in-game challenge modal overlay.          */
+
+@import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Nunito:wght@600;700;800;900&family=Manrope:wght@500;600;700;800&family=Fraunces:wght@600;700&display=swap');
+
+/* ─── Fullscreen Root Container ─────────────────────────────────────────── */
+.gl-root--fullscreen {
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 500;
+  background: #000;
+  overflow: hidden;
+  user-select: none;
+  font-family: 'Nunito', sans-serif;
+}
+
+/* ─── Fullscreen Game Canvas ────────────────────────────────────────────── */
+.gl-canvas-fullscreen {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+  background: transparent;
+  /* No image-rendering override — entities use ctx.imageSmoothingQuality */
+}
+
+.gl-video-bg {
+  position: absolute;
+  /* width/height/left/top set via JS inline style to mirror getViewportTransform */
+  pointer-events: none;
+  display: block;
+  image-rendering: auto;
+}
+
+/* ─── HUD Top Bar ───────────────────────────────────────────────────────── */
+.gl-hud-topbar {
+  position: absolute;
+  top: 18px;
+  left: 20px;
+  right: 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  pointer-events: none;
+  z-index: 520;
+}
+
+.gl-hud-exit-btn {
+  pointer-events: auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  background: rgba(15, 23, 42, 0.78);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: 24px;
+  color: #f1f5f9;
+  font-family: 'Nunito', sans-serif;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  backdrop-filter: blur(12px);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+  transition: all 0.2s ease;
+}
+
+.gl-hud-exit-btn:hover {
+  background: rgba(220, 38, 38, 0.85);
+  border-color: rgba(239, 68, 68, 0.6);
+  transform: translateY(-1px);
+}
+
+.gl-hud-audio-btn {
+  pointer-events: auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  background: rgba(15, 23, 42, 0.78);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: 50%;
+  color: #f1f5f9;
+  cursor: pointer;
+  backdrop-filter: blur(12px);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+  transition: all 0.2s ease;
+}
+
+.gl-hud-audio-btn:hover {
+  background: rgba(30, 41, 59, 0.95);
+  border-color: rgba(255, 255, 255, 0.35);
+  transform: translateY(-1px);
+}
+
+.gl-hud-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 16px;
+  background: rgba(15, 23, 42, 0.7);
+  border: 1px solid rgba(74, 222, 128, 0.25);
+  border-radius: 20px;
+  color: #bbf7d0;
+  font-size: 13px;
+  font-weight: 700;
+  backdrop-filter: blur(8px);
+}
+
+.gl-hud-badge-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #22c55e;
+  box-shadow: 0 0 8px #22c55e;
+}
+
+/* ─── Bottom Floating Hint ──────────────────────────────────────────────── */
+.gl-hint-bar {
+  position: absolute;
+  bottom: 22px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 22px;
+  background: rgba(10, 18, 12, 0.82);
+  border: 1px solid rgba(250, 204, 21, 0.35);
+  border-radius: 30px;
+  color: #fef08a;
+  font-size: 13px;
+  font-weight: 700;
+  backdrop-filter: blur(10px);
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.5);
+  pointer-events: none;
+  animation: gl-float 3s ease-in-out infinite;
+  white-space: nowrap;
+  z-index: 520;
+}
+
+@keyframes gl-float {
+
+  0%,
+  100% {
+    transform: translateX(-50%) translateY(0);
+  }
+
+  50% {
+    transform: translateX(-50%) translateY(-5px);
+  }
+}
+
+/* ─── Boundary Toast (when clicking grass/water/trees) ──────────────────── */
+.gl-boundary-toast {
+  position: absolute;
+  top: 74px;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 8px 20px;
+  background: rgba(239, 68, 68, 0.92);
+  color: #fff;
+  border-radius: 20px;
+  font-size: 13px;
+  font-weight: 700;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
+  animation: gl-toast-in 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+  pointer-events: none;
+  z-index: 530;
+}
+
+@keyframes gl-toast-in {
+  from {
+    transform: translateX(-50%) translateY(-10px);
+    opacity: 0;
+  }
+
+  to {
+    transform: translateX(-50%) translateY(0);
+    opacity: 1;
+  }
+}
+
+/* ─── Dialogue Overlay (Pixel-Art RPG Style) ────────────────────────────── */
+.gl-dialogue-overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  padding-bottom: 30px;
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.55) 0%, rgba(0, 0, 0, 0.15) 45%, transparent 75%);
+  z-index: 540;
+  pointer-events: auto;
+}
+
+.gl-dialogue-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 92%;
+  max-width: 820px;
+  position: relative;
+  animation: gl-dialogue-fade-in 0.28s ease-out;
+}
+
+@keyframes gl-dialogue-fade-in {
+  from {
+    transform: translateY(18px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+/* ── Character Portraits Stage ── */
+.gl-dialogue-portraits-stage {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  width: 100%;
+  padding: 0 32px;
+  margin-bottom: -18px; /* portraits overlap slightly into text box top */
+  z-index: 2;
+  pointer-events: none;
+}
+
+.gl-portrait-wrapper {
+  position: relative;
+  display: flex;
+  align-items: flex-end;
+  filter: drop-shadow(0 6px 16px rgba(0, 0, 0, 0.75));
+  transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), filter 0.22s ease;
+}
+
+.gl-portrait-wrapper--left {
+  transform-origin: bottom left;
+}
+
+.gl-portrait-wrapper--right {
+  transform-origin: bottom right;
+}
+
+/* Active speaker bob & highlight */
+.gl-portrait--active {
+  filter: drop-shadow(0 8px 22px rgba(234, 179, 8, 0.35)) drop-shadow(0 4px 10px rgba(0, 0, 0, 0.8));
+  transform: translateY(-4px) scale(1.03);
+}
+
+.gl-portrait--active.gl-portrait-bob {
+  animation: gl-portrait-bounce 0.35s cubic-bezier(0.2, 0.9, 0.3, 1.2);
+}
+
+@keyframes gl-portrait-bounce {
+  0% { transform: translateY(-4px) scale(1.03); }
+  40% { transform: translateY(-16px) scale(1.06); }
+  70% { transform: translateY(-2px) scale(1.01); }
+  100% { transform: translateY(-4px) scale(1.03); }
+}
+
+/* Passive / non-speaking portrait is slightly dimmed */
+.gl-portrait--dimmed {
+  opacity: 0.82;
+  filter: brightness(0.8) drop-shadow(0 4px 12px rgba(0, 0, 0, 0.6));
+  transform: translateY(2px) scale(0.97);
+}
+
+.gl-portrait-img {
+  display: block;
+  height: 220px;
+  width: auto;
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
+  user-select: none;
+  -webkit-user-drag: none;
+}
+
+/* Notice board icon badge */
+.gl-board-badge {
+  width: 140px;
+  height: 140px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 80px;
+  background: rgba(36, 24, 19, 0.9);
+  border: 4px solid #c2884a;
+  border-radius: 18px;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.7), inset 0 0 15px rgba(0,0,0,0.5);
+}
+
+/* ── Main Dialogue Box ── */
+.gl-rpg-dialogue-box {
+  position: relative;
+  width: 100%;
+  background-color: #241813;
+  border: 3px solid #c88949;
+  border-radius: 14px;
+  padding: 24px 34px 18px 34px;
+  box-shadow:
+    0 12px 36px rgba(0, 0, 0, 0.85),
+    inset 0 0 0 2px #472b1a,
+    inset 0 0 0 4px #1d120d;
+  cursor: pointer;
+  z-index: 10;
+  user-select: none;
+  box-sizing: border-box;
+}
+
+/* Ornate floral corners */
+.gl-dialogue-corner {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 64px;
+  background-size: contain;
+  background-repeat: no-repeat;
+  pointer-events: none;
+  z-index: 12;
+  opacity: 0.95;
+}
+
+.gl-dialogue-corner--left {
+  left: 0;
+  background-image: url('/game/dlg_floral_left.png');
+  background-position: left center;
+}
+
+.gl-dialogue-corner--right {
+  right: 0;
+  background-image: url('/game/dlg_floral_right.png');
+  background-position: right center;
+}
+
+/* Name Tag Tab — perched on top left border */
+.gl-rpg-name-tag {
+  position: absolute;
+  top: -24px;
+  left: 38px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 5px 26px 6px 26px;
+  background: #3a2518;
+  border: 3px solid #c88949;
+  border-radius: 18px;
+  box-shadow:
+    0 4px 14px rgba(0, 0, 0, 0.75),
+    inset 0 0 0 2px #26160d;
+  z-index: 15;
+}
+
+.gl-rpg-name-text {
+  font-family: 'Press Start 2P', monospace;
+  font-size: 13px;
+  font-weight: 700;
+  color: #faeed7;
+  letter-spacing: 0.05em;
+  text-shadow: 1px 1px 0px #180d07, -1px -1px 0px #180d07, 1px -1px 0px #180d07, -1px 1px 0px #180d07;
+  text-transform: capitalize;
+}
+
+/* Text Area */
+.gl-rpg-dialogue-body {
+  position: relative;
+  z-index: 11;
+  padding: 4px 38px 4px 38px;
+  min-height: 72px;
+  display: flex;
+  align-items: center;
+}
+
+.gl-rpg-dialogue-text {
+  font-family: 'VT323', monospace;
+  font-size: 26px;
+  line-height: 1.35;
+  color: #fff6e8;
+  letter-spacing: 0.03em;
+  text-shadow: 1px 2px 0px #0e0906;
+  margin: 0;
+  word-break: break-word;
+}
+
+/* Bottom Bar: Dots progress + Click to continue indicator */
+.gl-rpg-dialogue-bottom {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 10px;
+  padding: 0 38px;
+  position: relative;
+  z-index: 11;
+}
+
+.gl-rpg-dialogue-dots {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.gl-rpg-dot {
+  width: 9px;
+  height: 9px;
+  background: #503624;
+  border: 1px solid #7c5435;
+  transform: rotate(45deg);
+  transition: all 0.2s ease;
+}
+
+.gl-rpg-dot--active {
+  background: #e8a556;
+  border-color: #ffd899;
+  transform: rotate(45deg) scale(1.3);
+  box-shadow: 0 0 6px rgba(245, 175, 87, 0.8);
+}
+
+/* Next / Continue Arrow Indicator */
+.gl-rpg-next-action {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 4px 8px;
+  color: #f7d197;
+  font-family: 'Press Start 2P', monospace;
+  font-size: 10px;
+  letter-spacing: 0.05em;
+  transition: transform 0.15s ease, color 0.15s ease;
+}
+
+.gl-rpg-next-action:hover {
+  color: #fff;
+  transform: scale(1.05);
+}
+
+.gl-rpg-next-arrow {
+  width: 18px;
+  height: 12px;
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
+  animation: gl-arrow-blink 0.75s infinite alternate ease-in-out;
+}
+
+@keyframes gl-arrow-blink {
+  0% {
+    transform: translateY(0);
+    opacity: 0.55;
+  }
+  100% {
+    transform: translateY(4px);
+    opacity: 1;
+  }
+}
+
+/* ─── SIGN PREVIEW OVERLAY (shown right before the notice board's last line) ── */
+.gl-sign-preview-backdrop {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(8px);
+  z-index: 545;
+}
+
+.gl-sign-preview-card {
+  width: 92%;
+  max-width: 720px;
+  background: rgba(13, 24, 18, 0.94);
+  border: 2px solid rgba(74, 222, 128, 0.45);
+  border-radius: 24px;
+  padding: 36px 40px;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.7), 0 0 0 1px rgba(74, 222, 128, 0.15);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 26px;
+  animation: gl-slide-up 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.gl-sign-preview-title {
+  font-size: 20px;
+  font-weight: 800;
+  color: #4ade80;
+  letter-spacing: 0.04em;
+  text-align: center;
+}
+
+.gl-sign-preview-grid {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 20px;
+}
+
+.gl-sign-preview-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+
+.gl-sign-preview-item img {
+  width: 110px;
+  height: 110px;
+  object-fit: cover;
+  border-radius: 14px;
+  border: 2px solid rgba(74, 222, 128, 0.4);
+}
+
+.gl-sign-preview-item span {
+  font-size: 16px;
+  font-weight: 800;
+  color: #f0fdf4;
+}
+
+.gl-sign-preview-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 12px 32px;
+  background: linear-gradient(135deg, #22c55e, #16a34a);
+  color: #ffffff;
+  border: 2px solid #86efac;
+  border-radius: 28px;
+  font-family: 'Nunito', sans-serif;
+  font-size: 15px;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  cursor: pointer;
+  box-shadow: 0 6px 20px rgba(34, 197, 94, 0.45);
+  transition: all 0.18s ease;
+}
+
+.gl-sign-preview-btn:hover {
+  transform: translateY(-2px) scale(1.03);
+  box-shadow: 0 8px 26px rgba(34, 197, 94, 0.65);
+  background: linear-gradient(135deg, #2fd66c, #15803d);
+}
+
+.gl-sign-preview-btn:active {
+  transform: translateY(0) scale(0.98);
+}
+
+/* ─── IN-GAME CHALLENGE BACKDROP & MODAL ─────────────────────────────────── */
+/* The game world is visible and dimmed underneath this modal! */
+.gl-challenge-backdrop {
+  position: absolute;
+  inset: 0;
+  z-index: 550;
+  background: rgba(4, 13, 8, 0.72);
+  backdrop-filter: blur(8px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  animation: gl-fade-in 0.3s ease;
+}
+
+@keyframes gl-fade-in {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+.gl-challenge-modal {
+  width: 100%;
+  max-width: 820px;
+  max-height: 90vh;
+  background: #f6f2e9;
+  /* BeyondWords signature warm paper background */
+  color: #1c2b2f;
+  border-radius: 18px;
+  border: 3px solid rgba(47, 107, 87, 0.35);
+  box-shadow:
+    0 24px 70px rgba(0, 0, 0, 0.65),
+    0 0 0 1px rgba(255, 255, 255, 0.1);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  animation: gl-modal-pop 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@keyframes gl-modal-pop {
+  from {
+    transform: scale(0.92);
+    opacity: 0;
+  }
+
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.gl-modal-header {
+  flex-shrink: 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 14px 22px;
+  background: #204a3d;
+  color: #f6f2e9;
+  border-bottom: 2px solid #2f6b57;
+}
+
+.gl-modal-npc-tag {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.gl-modal-npc-img {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.15);
+  border: 2px solid #4ade80;
+  image-rendering: pixelated;
+}
+
+.gl-modal-npc-name {
+  font-family: 'Nunito', sans-serif;
+  font-size: 14px;
+  font-weight: 800;
+  color: #4ade80;
+  letter-spacing: 0.04em;
+}
+
+.gl-modal-npc-prompt {
+  font-family: 'Fraunces', serif;
+  font-size: 16px;
+  font-weight: 600;
+  color: #ffffff;
+}
+
+.gl-modal-close-btn {
+  padding: 6px 14px;
+  background: rgba(255, 255, 255, 0.15);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 20px;
+  color: #f6f2e9;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.gl-modal-close-btn:hover {
+  background: rgba(239, 68, 68, 0.8);
+  border-color: rgba(239, 68, 68, 0.8);
+}
+
+.gl-modal-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 24px 30px;
+  /* Design system tokens matching BeyondWords styles.css */
+  --ink: #1c2b2f;
+  --paper: #f6f2e9;
+  --moss: #2f6b57;
+  --moss-dark: #204a3d;
+  --gold: #d8a24a;
+  --clay: #b5563c;
+  --line: #d9d0bd;
+}
+
+/* Ensure the quiz fills the modal properly */
+.gl-modal-body .quiz {
+  margin-top: 0;
+  max-width: 100%;
+}
+
+.gl-modal-body .webcam-challenge {
+  margin-top: 0;
+  max-width: 100%;
+}
+
+/* ─── Level Complete Celebration Overlay ────────────────────────────────── */
+.gl-complete-backdrop {
+  position: absolute;
+  inset: 0;
+  z-index: 560;
+  background: rgba(2, 20, 10, 0.8);
+  backdrop-filter: blur(12px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  animation: gl-fade-in 0.4s ease;
+}
+
+.gl-complete-card {
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  padding: 40px;
+  max-width: 500px;
+  background: rgba(13, 24, 18, 0.95);
+  border: 2px solid #fde047;
+  border-radius: 24px;
+  box-shadow: 0 16px 50px rgba(0, 0, 0, 0.7);
+  animation: gl-modal-pop 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.gl-complete-star {
+  font-size: 64px;
+  animation: gl-star-spin 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+  filter: drop-shadow(0 0 20px rgba(250, 204, 21, 0.8));
+}
+
+@keyframes gl-star-spin {
+  from {
+    transform: scale(0) rotate(-180deg);
+  }
+
+  to {
+    transform: scale(1) rotate(0deg);
+  }
+}
+
+.gl-complete-title {
+  font-family: 'Press Start 2P', monospace;
+  font-size: 20px;
+  color: #fde047;
+  text-shadow: 0 0 16px rgba(253, 224, 71, 0.5);
+}
+
+.gl-complete-sub {
+  font-size: 15px;
+  font-weight: 700;
+  color: #86efac;
+  line-height: 1.5;
+}
+
+.gl-complete-actions {
+  display: flex;
+  gap: 14px;
+  margin-top: 14px;
+}
+
+.gl-complete-btn-primary {
+  padding: 12px 24px;
+  background: linear-gradient(135deg, #f59e0b, #d97706);
+  border: 2px solid #fde68a;
+  border-radius: 28px;
+  color: #1a0f00;
+  font-family: 'Nunito', sans-serif;
+  font-size: 14px;
+  font-weight: 800;
+  cursor: pointer;
+  box-shadow: 0 6px 20px rgba(245, 158, 11, 0.45);
+  transition: all 0.2s ease;
+}
+
+.gl-complete-btn-primary:hover {
+  transform: translateY(-2px) scale(1.03);
+  box-shadow: 0 8px 24px rgba(245, 158, 11, 0.65);
+}
+
+.gl-complete-btn-secondary {
+  padding: 12px 22px;
+  background: rgba(255, 255, 255, 0.12);
+  border: 2px solid rgba(255, 255, 255, 0.25);
+  border-radius: 28px;
+  color: #f0fdf4;
+  font-family: 'Nunito', sans-serif;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  backdrop-filter: blur(8px);
+  transition: all 0.2s ease;
+}
+
+.gl-complete-btn-secondary:hover {
+  background: rgba(255, 255, 255, 0.2);
+  border-color: rgba(255, 255, 255, 0.4);
+  transform: translateY(-2px);
+}
+
+/* ─── Loading State ─────────────────────────────────────────────────────── */
+.gl-loading {
+  position: absolute;
+  inset: 0;
+  z-index: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: radial-gradient(ellipse at center, #1a2e1a 0%, #0a0f0a 100%);
+}
+
+.gl-loading-inner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 18px;
+}
+
+.gl-loading-spinner {
+  width: 48px;
+  height: 48px;
+  border: 4px solid rgba(74, 222, 128, 0.15);
+  border-top-color: #4ade80;
+  border-radius: 50%;
+  animation: gl-spin 0.9s linear infinite;
+}
+
+@keyframes gl-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.gl-loading-text {
+  font-family: 'Press Start 2P', monospace;
+  font-size: 11px;
+  color: #4ade80;
+  letter-spacing: 0.08em;
+  animation: gl-pulse 1.4s ease-in-out infinite;
+}
+
+@keyframes gl-pulse {
+
+  0%,
+  100% {
+    opacity: 1;
+  }
+
+  50% {
+    opacity: 0.4;
+  }
+}

@@ -1,0 +1,939 @@
+/* ═══════════════════════════════════════════════════════
+   BeyondWords — Adventure Progression Map
+   Inspired directly by the reference curved trail UI
+   ═══════════════════════════════════════════════════════ */
+
+@import url('https://fonts.googleapis.com/css2?family=Bowlby+One+SC&family=DM+Sans:wght@500;700;800;900&family=Nunito:wght@700;800;900&display=swap');
+
+:root {
+  --bw-dark-bg: #141d24;
+  --bw-dark-viewport: #18222a;
+  --bw-green-bright: #4fe838;
+  --bw-green-glow: rgba(79, 232, 56, 0.45);
+  --bw-green-glow-strong: rgba(79, 232, 56, 0.7);
+  --bw-node-border: #7bf869;
+  --bw-banner-green: #37d61b;
+}
+
+/* ── Container ────────────────────────────────────────── */
+.bw-progression-root {
+  min-height: 100vh;
+  background-color: var(--bw-dark-bg);
+  background-image: 
+    radial-gradient(circle at 50% 20%, rgba(30, 50, 60, 0.3) 0%, transparent 70%),
+    radial-gradient(circle at 50% 80%, rgba(20, 40, 48, 0.4) 0%, transparent 70%);
+  display: flex;
+  flex-direction: column;
+  font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  color: #fff;
+  overflow: hidden;
+  user-select: none;
+}
+
+/* ── Banner Header ────────────────────────────────────── */
+.bw-progression-header {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 24px;
+  background: linear-gradient(180deg, #37d61b 0%, #2ec314 100%);
+  border-bottom: 2px solid #239e0d;
+  box-shadow: 0 4px 20px rgba(46, 195, 20, 0.35);
+}
+
+.bw-back-button {
+  background: rgba(0, 0, 0, 0.15);
+  border: none;
+  color: #fff;
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.18s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.bw-back-button:hover {
+  background: rgba(0, 0, 0, 0.3);
+  transform: scale(1.08);
+}
+
+.bw-header-text {
+  flex: 1;
+  margin-left: 14px;
+}
+
+.bw-header-title {
+  font-family: 'Nunito', 'DM Sans', sans-serif;
+  font-weight: 900;
+  font-size: 13px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #ffffff;
+  margin: 0;
+  line-height: 1.2;
+}
+
+.bw-header-subtitle {
+  font-size: 15px;
+  font-weight: 800;
+  font-family: 'DM Sans', sans-serif;
+  color: #f2fff0;
+  margin: 2px 0 0 0;
+}
+
+.bw-header-action {
+  background: rgba(0, 0, 0, 0.15);
+  border: 1.5px solid rgba(255, 255, 255, 0.25);
+  color: #fff;
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.18s ease;
+}
+
+.bw-header-action:hover {
+  background: rgba(0, 0, 0, 0.28);
+}
+
+/* ── Scrollable Map Canvas ────────────────────────────── */
+.bw-map-scroll {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  display: flex;
+  justify-content: center;
+  padding: 10px 0 80px 0;
+}
+
+.bw-map-scroll::-webkit-scrollbar {
+  width: 6px;
+}
+.bw-map-scroll::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 3px;
+}
+
+.bw-map-viewport {
+  position: relative;
+  width: 100%;
+  max-width: 780px;
+  margin: 0 auto;
+}
+
+.bw-map-svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  filter: drop-shadow(0 0 16px rgba(46, 195, 20, 0.2));
+}
+
+/* Clouds on level map with subtle ambient drift */
+.bw-map-cloud {
+  position: absolute;
+  height: 20px;
+  width: 68px;
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.05);
+  pointer-events: none;
+  animation: bw-cloud-drift 18s ease-in-out infinite alternate;
+}
+.bw-map-cloud:before, .bw-map-cloud:after {
+  content: '';
+  position: absolute;
+  border-radius: 50%;
+  background: inherit;
+}
+.bw-map-cloud:before { width: 28px; height: 28px; left: 10px; top: -12px; }
+.bw-map-cloud:after  { width: 20px; height: 20px; left: 32px; top: -8px; }
+
+.bw-cloud-a { top: 10%; left: 8%; animation-duration: 22s; }
+.bw-cloud-b { top: 40%; right: 10%; transform: scale(1.3); animation-duration: 26s; animation-delay: -6s; }
+.bw-cloud-c { bottom: 22%; left: 10%; opacity: 0.7; animation-duration: 20s; animation-delay: -3s; }
+.bw-cloud-d { top: 68%; right: 14%; opacity: 0.5; animation-duration: 24s; animation-delay: -10s; }
+
+@keyframes bw-cloud-drift {
+  0% { transform: translateX(0) translateY(0); }
+  50% { transform: translateX(12px) translateY(-4px); }
+  100% { transform: translateX(-8px) translateY(2px); }
+}
+
+/* ── Terrain Environment Details ─────────────────────── */
+.bw-terrain-feature {
+  position: absolute;
+  pointer-events: none;
+  z-index: 3;
+  transition: opacity 0.3s ease;
+}
+
+.bw-forest-top-left {
+  top: 18%;
+  left: 12%;
+  opacity: 0.85;
+}
+
+.bw-rocks-mid-right {
+  top: 36%;
+  right: 14%;
+  opacity: 0.85;
+}
+
+.bw-forest-mid-left {
+  top: 54%;
+  left: 14%;
+  opacity: 0.85;
+}
+
+.bw-ridge-bottom-right {
+  bottom: 12%;
+  right: 15%;
+  opacity: 0.8;
+}
+
+/* Subtle particle glow dots along map */
+.bw-map-viewport::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background-image: 
+    radial-gradient(1.5px 1.5px at 20% 30%, rgba(74, 222, 128, 0.35), transparent),
+    radial-gradient(2px 2px at 80% 25%, rgba(251, 191, 36, 0.3), transparent),
+    radial-gradient(1.5px 1.5px at 30% 70%, rgba(56, 189, 248, 0.35), transparent),
+    radial-gradient(2px 2px at 75% 80%, rgba(74, 222, 128, 0.3), transparent);
+  z-index: 1;
+}
+
+/* Landmarks along level trail */
+.bw-trail-landmark {
+  position: absolute;
+  pointer-events: none;
+  z-index: 2;
+}
+.bw-landmark-top-right { top: 14%; right: 18%; opacity: 0.55; }
+.bw-landmark-bottom-left { bottom: 26%; left: 20%; opacity: 0.45; }
+
+/* ── Node Positioning & Structure ─────────────────────── */
+.bw-map-node-wrapper {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  z-index: 10;
+}
+
+.bw-map-node {
+  position: relative;
+  width: 76px;
+  height: 76px;
+  border-radius: 50%;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  outline: none;
+  transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.2s ease;
+}
+
+/* ── Complete / Active Nodes (Glowing Bright Green) ─── */
+.bw-map-node--complete,
+.bw-map-node--active {
+  background: radial-gradient(circle at 35% 35%, #76f757 0%, #3fe327 50%, #27be13 100%);
+  box-shadow: 
+    0 0 0 4px rgba(118, 247, 87, 0.4),
+    0 0 25px 6px rgba(79, 232, 56, 0.55),
+    0 6px 12px rgba(0, 0, 0, 0.5);
+}
+
+.bw-map-node--active {
+  animation: bw-active-pulse 2.2s infinite ease-in-out;
+}
+
+.bw-map-node--complete:hover,
+.bw-map-node--active:hover {
+  transform: scale(1.12);
+  box-shadow: 
+    0 0 0 6px rgba(118, 247, 87, 0.6),
+    0 0 35px 12px rgba(79, 232, 56, 0.8),
+    0 8px 16px rgba(0, 0, 0, 0.6);
+}
+
+.bw-map-node--complete .bw-node-disc,
+.bw-map-node--active .bw-node-disc {
+  color: #103316;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* ── Locked / Checkpoint Node (Dark Metallic) ────────── */
+.bw-map-node--locked {
+  background: radial-gradient(circle at 35% 35%, #273845 0%, #1a2732 70%, #121c25 100%);
+  box-shadow: 
+    0 0 0 3px rgba(45, 65, 80, 0.5),
+    0 6px 14px rgba(0, 0, 0, 0.6);
+  cursor: not-allowed;
+  opacity: 0.82;
+}
+
+.bw-map-node--locked .bw-node-disc {
+  color: #556c7d;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.bw-map-node--selected {
+  transform: scale(1.16) !important;
+}
+
+/* ── Inner Disc and Icons ────────────────────────────── */
+.bw-node-disc {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.bw-node-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.bw-emoji-hand {
+  font-size: 26px;
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.25));
+}
+
+/* ── Checkmark Badge ─────────────────────────────────── */
+.bw-node-check-badge {
+  position: absolute;
+  top: -2px;
+  right: -2px;
+  width: 20px;
+  height: 20px;
+  background: #ffffff;
+  color: #23a010;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
+  z-index: 5;
+}
+
+/* ── Level Card Under Node ───────────────────────────── */
+.bw-map-node-card {
+  margin-top: 8px;
+  background: rgba(22, 33, 42, 0.95);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  padding: 4px 10px;
+  text-align: center;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-width: 70px;
+}
+
+.bw-map-node-label {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #4ade80;
+}
+
+.bw-map-node-sub {
+  font-size: 10px;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.65);
+  white-space: nowrap;
+}
+
+.bw-map-node--locked + .bw-map-node-card .bw-map-node-label {
+  color: #718898;
+}
+
+.bw-map-node--locked + .bw-map-node-card .bw-map-node-sub {
+  color: #556c7d;
+}
+
+.bw-header-tag {
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  color: #d1fae5;
+  background: rgba(0, 0, 0, 0.2);
+  padding: 2px 8px;
+  border-radius: 100px;
+  display: inline-block;
+  margin-bottom: 2px;
+}
+
+/* ── Labels Under Nodes ──────────────────────────────── */
+.bw-map-node-label {
+  margin-top: 8px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #4ade80;
+  text-shadow: 0 0 10px rgba(74, 222, 128, 0.4);
+}
+
+.bw-map-node--locked + .bw-map-node-label {
+  color: #718898;
+  text-shadow: none;
+}
+
+/* ── Tooltip popup ───────────────────────────────────── */
+.bw-tooltip-wrapper {
+  position: absolute;
+  transform: translateX(-50%);
+  z-index: 100;
+}
+
+.bw-tooltip {
+  background: #17242e;
+  border: 2px solid #37d61b;
+  border-radius: 16px;
+  padding: 14px 18px 12px;
+  width: 230px;
+  box-shadow: 0 12px 35px rgba(0, 0, 0, 0.7), 0 0 20px rgba(55, 214, 27, 0.35);
+  animation: bw-pop 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.bw-tooltip::before {
+  content: '';
+  position: absolute;
+  top: -9px;
+  left: 50%;
+  transform: translateX(-50%);
+  border: 5px solid transparent;
+  border-bottom-color: #37d61b;
+}
+
+.bw-tooltip-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.bw-tooltip-emoji {
+  font-size: 24px;
+}
+
+.bw-tooltip-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.bw-tooltip-badge {
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #4ade80;
+}
+
+.bw-tooltip-title {
+  font-size: 14px;
+  font-weight: 700;
+  color: #fff;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.bw-tooltip-close {
+  background: rgba(255, 255, 255, 0.1);
+  border: none;
+  color: #a0aec0;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 11px;
+}
+
+.bw-tooltip-close:hover {
+  background: rgba(255, 255, 255, 0.2);
+  color: #fff;
+}
+
+.bw-tooltip-start {
+  width: 100%;
+  background: #37d61b;
+  color: #0d2e09;
+  border: none;
+  border-radius: 10px;
+  padding: 10px;
+  font-size: 14px;
+  font-weight: 800;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  box-shadow: 0 4px 0 #249910;
+}
+
+.bw-tooltip-start:hover {
+  filter: brightness(1.1);
+  transform: translateY(-1px);
+}
+
+.bw-tooltip-start:active {
+  transform: translateY(2px);
+  box-shadow: 0 1px 0 #249910;
+}
+
+/* ── Keyframes ───────────────────────────────────────── */
+@keyframes bw-active-pulse {
+  0%, 100% {
+    box-shadow: 
+      0 0 0 4px rgba(118, 247, 87, 0.4),
+      0 0 25px 6px rgba(79, 232, 56, 0.55),
+      0 6px 12px rgba(0, 0, 0, 0.5);
+  }
+  50% {
+    box-shadow: 
+      0 0 0 8px rgba(118, 247, 87, 0.25),
+      0 0 40px 14px rgba(79, 232, 56, 0.75),
+      0 6px 14px rgba(0, 0, 0, 0.5);
+  }
+}
+
+@keyframes bw-pop {
+  from {
+    opacity: 0;
+    transform: scale(0.85) translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+/* ── Mobile ─────────────────────────────────────────── */
+@media (max-width: 480px) {
+  .bw-map-node {
+    width: 64px;
+    height: 64px;
+  }
+  .bw-map-node-label {
+    font-size: 10px;
+  }
+  .bw-header-title {
+    font-size: 12px;
+  }
+  .bw-header-subtitle {
+    font-size: 13px;
+  }
+}
+
+/* ═══════════════════════════════════════════════════════
+   Level Transition / Pre-game Walking Loading Screen
+   ═══════════════════════════════════════════════════════ */
+
+.bw-level-transition-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: radial-gradient(circle at center, rgba(14, 30, 24, 0.95) 0%, rgba(6, 15, 12, 0.98) 100%);
+  backdrop-filter: blur(10px);
+  opacity: 1;
+  transition: opacity 0.4s ease-in-out;
+  animation: bw-transition-fade-in 0.3s ease-out forwards;
+}
+
+.bw-level-transition-overlay.bw-transition--fading {
+  opacity: 0;
+  pointer-events: none;
+}
+
+@keyframes bw-transition-fade-in {
+  from {
+    opacity: 0;
+    backdrop-filter: blur(0px);
+  }
+  to {
+    opacity: 1;
+    backdrop-filter: blur(10px);
+  }
+}
+
+.bw-transition-backdrop {
+  position: relative;
+  width: 100%;
+  max-width: 620px;
+  margin: 0 24px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* Ambient Floating Particles */
+.bw-transition-particles {
+  position: absolute;
+  inset: -60px;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.bw-particle {
+  position: absolute;
+  width: 6px;
+  height: 6px;
+  background: #4ade80;
+  border-radius: 50%;
+  filter: blur(1px);
+  box-shadow: 0 0 10px #4ade80, 0 0 20px #86efac;
+  opacity: 0.7;
+  animation: bw-particle-float 3s infinite ease-in-out;
+}
+
+.bw-particle.p1 { top: 20%; left: 12%; animation-duration: 2.5s; animation-delay: 0s; }
+.bw-particle.p2 { top: 65%; left: 82%; animation-duration: 3.2s; animation-delay: 0.4s; width: 8px; height: 8px; }
+.bw-particle.p3 { top: 25%; left: 75%; animation-duration: 2.8s; animation-delay: 0.8s; }
+.bw-particle.p4 { top: 80%; left: 20%; animation-duration: 3.5s; animation-delay: 0.2s; }
+.bw-particle.p5 { top: 38%; left: 50%; animation-duration: 2.2s; animation-delay: 1.1s; }
+
+@keyframes bw-particle-float {
+  0%, 100% {
+    transform: translateY(0px) scale(0.8);
+    opacity: 0.3;
+  }
+  50% {
+    transform: translateY(-16px) scale(1.2);
+    opacity: 0.85;
+  }
+}
+
+.bw-transition-container {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+}
+
+/* Badge Context */
+.bw-transition-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 18px;
+  border-radius: 9999px;
+  background: rgba(47, 107, 87, 0.35);
+  border: 1px solid rgba(74, 222, 128, 0.35);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: #86efac;
+  letter-spacing: 0.02em;
+  animation: bw-badge-pop 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.bw-transition-badge-icon {
+  font-size: 1rem;
+}
+
+@keyframes bw-badge-pop {
+  from {
+    opacity: 0;
+    transform: translateY(-10px) scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* Game-like Walking Scene Card */
+.bw-transition-scene {
+  position: relative;
+  width: 100%;
+  height: 165px;
+  background: linear-gradient(180deg, #16382c 0%, #1e4d3d 55%, #194033 100%);
+  border-radius: 20px;
+  border: 2px solid rgba(74, 222, 128, 0.35);
+  box-shadow:
+    0 16px 40px rgba(0, 0, 0, 0.45),
+    inset 0 1px 0 rgba(255, 255, 255, 0.15);
+  overflow: hidden;
+}
+
+/* Background Scenery */
+.bw-transition-scenery-bg {
+  position: absolute;
+  top: 16px;
+  left: 0;
+  right: 0;
+  display: flex;
+  justify-content: space-around;
+  padding: 0 20px;
+  opacity: 0.38;
+  filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.4));
+  font-size: 1.6rem;
+  pointer-events: none;
+}
+
+/* Ground / Pathway */
+.bw-transition-ground {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 52px;
+  background: linear-gradient(180deg, #3d2d1e 0%, #291d12 100%);
+  border-top: 4px solid #4ade80;
+  box-shadow: inset 0 3px 6px rgba(0, 0, 0, 0.5);
+}
+
+.bw-transition-path {
+  position: absolute;
+  inset: 0;
+  background-image: radial-gradient(rgba(255, 255, 255, 0.08) 15%, transparent 20%);
+  background-size: 24px 24px;
+}
+
+.bw-transition-decorations {
+  position: absolute;
+  top: -16px;
+  left: 0;
+  right: 0;
+  display: flex;
+  justify-content: space-around;
+  padding: 0 15px;
+  pointer-events: none;
+  font-size: 1rem;
+}
+
+/* Player walking track */
+.bw-transition-player-track {
+  position: absolute;
+  bottom: 12px;
+  left: 0;
+  right: 0;
+  height: 80px;
+  pointer-events: none;
+}
+
+.bw-transition-player-wrapper {
+  position: absolute;
+  bottom: 0;
+  left: -40px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  animation: bw-player-walk-across 2.2s linear forwards;
+}
+
+.bw-transition-player-sprite {
+  width: 52px;
+  height: 64px;
+  object-fit: contain;
+  image-rendering: pixelated;
+  filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.5));
+  animation: bw-player-step-bob 0.24s ease-in-out infinite alternate;
+}
+
+.bw-transition-player-shadow {
+  width: 32px;
+  height: 9px;
+  background: rgba(0, 0, 0, 0.45);
+  border-radius: 50%;
+  margin-top: -4px;
+  animation: bw-player-shadow-pulse 0.24s ease-in-out infinite alternate;
+}
+
+@keyframes bw-player-walk-across {
+  0% {
+    left: -40px;
+    opacity: 0;
+  }
+  6% {
+    opacity: 1;
+  }
+  92% {
+    opacity: 1;
+  }
+  100% {
+    left: calc(100% - 65px);
+    opacity: 1;
+  }
+}
+
+@keyframes bw-player-step-bob {
+  0% {
+    transform: translateY(0px) rotate(0deg);
+  }
+  50% {
+    transform: translateY(-6px) rotate(2deg);
+  }
+  100% {
+    transform: translateY(-1px) rotate(-2deg);
+  }
+}
+
+@keyframes bw-player-shadow-pulse {
+  0% {
+    transform: scaleX(1);
+    opacity: 0.45;
+  }
+  100% {
+    transform: scaleX(0.8);
+    opacity: 0.3;
+  }
+}
+
+/* Destination Goal Indicator */
+.bw-transition-destination {
+  position: absolute;
+  right: 24px;
+  bottom: 38px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.4rem;
+  pointer-events: none;
+}
+
+.bw-destination-glow {
+  position: absolute;
+  width: 38px;
+  height: 38px;
+  background: radial-gradient(circle, rgba(74, 222, 128, 0.45) 0%, transparent 70%);
+  border-radius: 50%;
+  animation: bw-glow-pulse 1.4s ease-in-out infinite alternate;
+}
+
+.bw-destination-flag {
+  position: relative;
+  z-index: 2;
+  filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.5));
+  animation: bw-flag-wave 1s ease-in-out infinite alternate;
+}
+
+@keyframes bw-glow-pulse {
+  0% {
+    transform: scale(0.85);
+    opacity: 0.4;
+  }
+  100% {
+    transform: scale(1.3);
+    opacity: 0.9;
+  }
+}
+
+@keyframes bw-flag-wave {
+  0% {
+    transform: rotate(0deg) translateY(0);
+  }
+  100% {
+    transform: rotate(6deg) translateY(-2px);
+  }
+}
+
+/* Status Message & Progress Bar */
+.bw-transition-status {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  max-width: 360px;
+}
+
+.bw-transition-message {
+  font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #f1f5f9;
+  letter-spacing: 0.03em;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.6);
+}
+
+.bw-transition-dots span {
+  display: inline-block;
+  animation: bw-dot-bounce 1.2s infinite ease-in-out;
+  color: #4ade80;
+  font-weight: 800;
+}
+
+.bw-transition-dots span:nth-child(1) { animation-delay: 0s; }
+.bw-transition-dots span:nth-child(2) { animation-delay: 0.2s; }
+.bw-transition-dots span:nth-child(3) { animation-delay: 0.4s; }
+
+@keyframes bw-dot-bounce {
+  0%, 80%, 100% {
+    transform: translateY(0);
+    opacity: 0.4;
+  }
+  40% {
+    transform: translateY(-4px);
+    opacity: 1;
+  }
+}
+
+.bw-transition-progress-bar {
+  width: 100%;
+  height: 6px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 9999px;
+  overflow: hidden;
+  border: 1px solid rgba(74, 222, 128, 0.2);
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.4);
+}
+
+.bw-transition-progress-fill {
+  height: 100%;
+  width: 0%;
+  background: linear-gradient(90deg, #22c55e 0%, #4ade80 70%, #a7f3d0 100%);
+  border-radius: 9999px;
+  box-shadow: 0 0 10px rgba(74, 222, 128, 0.6);
+  animation: bw-progress-fill 2.1s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+@keyframes bw-progress-fill {
+  0% {
+    width: 0%;
+  }
+  60% {
+    width: 75%;
+  }
+  100% {
+    width: 100%;
+  }
+}
+
+
